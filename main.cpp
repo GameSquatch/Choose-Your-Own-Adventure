@@ -106,12 +106,17 @@ private:
     ChoiceA AChoice;
     ChoiceB BChoice;
     string story;
-    std::map<int, string> pathUniqueModifiers;
-    int nModifiers;
+    std::map<string, string> pathUniqueModifiers;
+    int modPos;
+    bool modded;
+    
+private:
+    void modifyStory(string path);
     
 public:
     Question();
     Question(string AChoice, string BChoice);
+    Question(bool modded);
     ~Question();
     
     // functions
@@ -122,8 +127,10 @@ public:
     void printOptions();
     // give a question a story, which is prited before the question is asked and the choices are offered
     void giveStory(string story);
-    // when giving a story to a question that can be reached through two paths, add a '^' symbol. insertPos is either 1 or 2
-    void addStoryModifier(string storyMod);
+    // Write the modification to the story and the path needed that will make sense for the modification path = "aaba" e.g.
+    void addStoryModifier(string storyMod, string path);
+    // this should only be used for modded questions
+    void giveQuestions(string aChoice, string bChoice);
 };
 Question::Question()
 : ARoute(nullptr)
@@ -131,9 +138,21 @@ Question::Question()
 , AChoice("")
 , BChoice("")
 , story("")
-, nModifiers(0)
+, modPos(-1)
+, modded(false)
 {
-    
+    // modPos is -1 to start because the lowest a mod position can be is zero, so checking for -1 will mean no mod was added
+}
+Question::Question(bool modded)
+: ARoute(nullptr)
+, BRoute(nullptr)
+, AChoice("")
+, BChoice("")
+, story("")
+, modPos(-1)
+, modded(true)
+{
+    // modPos is -1 to start because the lowest a mod position can be is zero, so checking for -1 will mean no mod was added
 }
 Question::Question(string AChoice, string BChoice)
 : ARoute(nullptr)
@@ -141,7 +160,8 @@ Question::Question(string AChoice, string BChoice)
 , AChoice(AChoice)
 , BChoice(BChoice)
 , story("")
-, nModifiers(0)
+, modPos(-1)
+, modded(false)
 {
     
 }
@@ -154,6 +174,9 @@ void Question::makeRoutes(Question* A, Question* B) {
     this->BRoute = B;
 }
 void Question::ask(string path) {
+    if (modded) {
+        modifyStory(path);
+    }
     cout << story << endl << endl;
     cout << AChoice.getText() << "(a) or " << BChoice.getText() << "(b)?" << endl;
 }
@@ -172,14 +195,38 @@ Question* Question::goB() {
     return BRoute;
 }
 void Question::giveStory(string story) {
+    // when typing in a modded story, add necessary spaces for the modification string when it's inserted
     this->story = story;
+    // now check for a mod position if modded
+    if (modded) {
+        int i, len = story.length();
+        for (i = 0; i < len; ++i) {
+            if (story.at(i) == '^') {
+                modPos = i;
+            }
+        }
+    }
 }
-void Question::addStoryModifier(string storyMod) {
-    int pos = (int)(this->story.find("^"));
-    
-    string upToMark = this->story.substr(0, pos - 1);
-    string afterMark = this->story.substr(pos + 1);
-    this->story += upToMark + storyMod + afterMark;// add the modification
+void Question::addStoryModifier(string storyMod, string path) {
+    if (modPos >= 0) {
+        pathUniqueModifiers[path] = storyMod;
+    }
+}
+void Question::modifyStory(string path) {
+    if (modPos == story.length() - 1) {
+        story.append(pathUniqueModifiers[path]);
+        // erase the '^' symbol at the end of the string
+        story.erase(story.end() - 1);
+    }
+    else {
+        story.insert(modPos, pathUniqueModifiers[path]);
+        // after the mod is inserted, the '^' symbol will get moved to where it was (modPos) + the length of string that was just inserted
+        story.erase(modPos + pathUniqueModifiers[path].length(), 1);
+    }
+}
+void Question::giveQuestions(string aChoice, string bChoice) {
+    this->AChoice = ChoiceA(aChoice);
+    this->BChoice = ChoiceB(bChoice);
 }
 
 /* -------------------------GAME-CLASS---------------------------- */
@@ -200,6 +247,8 @@ private:
     
     Question fountain;
     
+    Question filler;
+    
     void linkQuestions();
     
 public:
@@ -208,45 +257,58 @@ public:
     // functions
     void travelTo(char pathChoice);
     void gameLoop();
-    void printOptions(string path);
+    void printOptions();
     bool receiveInput(string& userInput);
 };
 Game::Game()
 : pathStr("")
 , currentQuestion(nullptr)
-, elf("Walk the forest", "Shit your pants")
+, elf("Keep walking", "Shit your pants")
 , forest("Eat the mushroom", "Drink the nectar")
 , shit("Wipe your butt", "Act like it didn't happen")
 , nectar("Walk to the light", "Follow your father")
 , mushroom("Make a fire", "Find food")
 , butt("Bury poop leaf", "Stick to tree")
 , act("Wash crusties", "Keep walking")
-, fountain()
+, fountain(true)
+, filler("TESTING", "TESTING")
 {
     linkQuestions();
+    /******** when typing in a modded story, add necessary spaces for the modification string when it's inserted ******/
     elf.giveStory("You encounter an elf who's sitting on a tree stump. You approach them cautiously. "
-                  "As you get within arms reach, you notice their eyes have popped out of their head.");
+                  "As you get within arms reach, you notice their eyes have popped out of their head. You could keep walking, or...");
     
+    // elf a choice path "a"
     forest.giveStory("As you walk the forest, trying to forget the sight of that dead, eyeless elf, you notice a strange light ahead. "
                      "It's a strange ray of sunlight, shining through the canopy. On the ground where the sun ray stops, there are two bowls. "
                      "In one bowl, a greenly tinted mushroom - the other bowl, a yellowish nectar-like fluid.");
-    
+    // elf b choice path "b"
     shit.giveStory("The sight of that elf causes your body to involuntarily shit itself - right on the spot.");
     
+    // forest a choice path "aa"
+    mushroom.giveStory("You pick the mushroom up out of the bowl. It's not so large, so you place the whole thing in your mouth at once and begin to chew. "
+                       "For some reason, you expected it to have a psychodelic affect. After wasting that time, you decide it's time to make camp.");
+    // forest b choice path "ab"
     nectar.giveStory("You pick up the bowl of nectar, touching the rim of the bowl to your lips, and slowly tip your head back. You pour the sweet fluid "
                      "down your throat and enjoy its somehow-nostalgic taste. Your vision immediately starts to change. The forest in front of you "
                      "parts into two paths. One path is crossed infinitely by rays of light - you see a glimpse of your father walking down the other.");
     
-    mushroom.giveStory("You pick the mushroom up out of the bowl. It's not so large, so you place the whole thing in your mouth at once and begin to chew. "
-                       "For some reason, you expected it to have a psychodelic affect, but now you just feel more full.");
-    
+    // shit a choice path "ba"
     butt.giveStory("After taking care of your hygenic duties, you decide what to do with the poor leaf you chose to sacrifice for the task. You glance "
-                   "at the ground, which is very loose and moist. You also see a nearby tree with a lot of moss growing on it.");
-    
+                   "at the ground, which is very loose and damp. You also see a nearby tree with a lot of moss growing on it.");
+    // shit b choice path "bb"
     act.giveStory("Bold move deciding to act like something like that never happened. After walking away, you find a nearby creek, which could offer "
                   "some much needed cleaning. You have also just seen a horific scene and think getting out of here might be the best choice.");
     
-    fountain.giveStory("^)
+    // act b choice path "bbb" and nectar b choice path "abb"
+    fountain.giveStory("After walking for a ways you see a break in the trees up ahead. A few more steps brings you to the clearing. In the clearing, you"
+                       " spot something quite dumbfounding. Right in the center of this clearing sits a beautifully hand-carved stone fountain. ^"
+                       " You walk quickly to the fountain. You stare deeply at your reflection in the bottom pool. You almost can't look away...");
+    fountain.addStoryModifier("Some fresh, clean water would be perfect for the accident that happened in your pants earlier."
+                              , "bbb");
+    fountain.addStoryModifier("It looks just like the one your father had made for the front garden of your family home."
+                              , "abb");
+    fountain.giveQuestions("Keep staring at your reflection.", "Swipe at the water and ruin your reflection.");
 }
 
 void Game::linkQuestions() {
@@ -256,24 +318,27 @@ void Game::linkQuestions() {
     
     forest.makeRoutes(&mushroom, &nectar);
     shit.makeRoutes(&butt, &act);
+    
+    act.makeRoutes(&filler, &fountain);
+    nectar.makeRoutes(&filler, &fountain);
 }
 
 void Game::travelTo(char pathChoice) {
     if (pathChoice == 'a') {
         currentQuestion = currentQuestion->goA();
-        pathStr += "a";
+        pathStr.append("a");
     }
     else if (pathChoice == 'b') {
         currentQuestion = currentQuestion->goB();
-        pathStr += "b";
+        pathStr.append("b");
     }
     else {
         cout << "Somehow the path choice wasn't a or b." << endl;
     }
 }
 
-void Game::printOptions(string path) {
-    currentQuestion->ask(path);
+void Game::printOptions() {
+    currentQuestion->ask(pathStr);
 }
 
 bool Game::receiveInput(string& userInput) {
@@ -321,7 +386,7 @@ void Game::gameLoop() {
     while (true) {
         // print story
         // print options
-        printOptions(pathStr);
+        printOptions();
         // take input
         if (receiveInput(userInput)) {
             break;//quit was chosen
