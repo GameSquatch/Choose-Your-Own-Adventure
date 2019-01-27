@@ -115,8 +115,7 @@ private:
     
 public:
     Question();
-    Question(string AChoice, string BChoice);
-    Question(bool modded);
+    Question(string AChoice, string BChoice, bool modded);
     ~Question();
     
     // functions
@@ -129,8 +128,6 @@ public:
     void giveStory(string story);
     // Write the modification to the story and the path needed that will make sense for the modification path = "aaba" e.g.
     void addStoryModifier(string storyMod, string path);
-    // this should only be used for modded questions
-    void giveQuestions(string aChoice, string bChoice);
 };
 Question::Question()
 : ARoute(nullptr)
@@ -143,25 +140,14 @@ Question::Question()
 {
     // modPos is -1 to start because the lowest a mod position can be is zero, so checking for -1 will mean no mod was added
 }
-Question::Question(bool modded)
-: ARoute(nullptr)
-, BRoute(nullptr)
-, AChoice("")
-, BChoice("")
-, story("")
-, modPos(-1)
-, modded(true)
-{
-    // modPos is -1 to start because the lowest a mod position can be is zero, so checking for -1 will mean no mod was added
-}
-Question::Question(string AChoice, string BChoice)
+Question::Question(string AChoice, string BChoice, bool modded = false)
 : ARoute(nullptr)
 , BRoute(nullptr)
 , AChoice(AChoice)
 , BChoice(BChoice)
 , story("")
 , modPos(-1)
-, modded(false)
+, modded(modded)
 {
     
 }
@@ -224,10 +210,6 @@ void Question::modifyStory(string path) {
         story.erase(modPos + pathUniqueModifiers[path].length(), 1);
     }
 }
-void Question::giveQuestions(string aChoice, string bChoice) {
-    this->AChoice = ChoiceA(aChoice);
-    this->BChoice = ChoiceB(bChoice);
-}
 
 /* -------------------------GAME-CLASS---------------------------- */
 class Game {
@@ -238,14 +220,20 @@ private:
     Question elf;
     
     Question forest;
-    Question shit;
+    Question soil;
     
     Question nectar;
     Question mushroom;
     Question butt;
     Question act;
     
+    Question crusties;
     Question fountain;
+    Question light;
+    Question fire;
+    Question food;
+    Question bury;
+    Question tree;
     
     Question filler;
     
@@ -263,28 +251,38 @@ public:
 Game::Game()
 : pathStr("")
 , currentQuestion(nullptr)
-, elf("Keep walking", "Shit your pants")
+, elf("Keep walking", "Soil yourself")
 , forest("Eat the mushroom", "Drink the nectar")
-, shit("Wipe your butt", "Act like it didn't happen")
+, soil("Wipe your butt", "Act like it didn't happen")
 , nectar("Walk to the light", "Follow your father")
 , mushroom("Make a fire", "Find food")
 , butt("Bury poop leaf", "Stick to tree")
 , act("Wash crusties", "Keep walking")
-, fountain(true)
+, fountain("Keep staring at reflection", "Swipe at the water", true)
 , filler("TESTING", "TESTING")
+, light("null", "null")
+, fire("null", "null")
+, food("null", "null")
+, bury("null", "null")
+, tree("null", "null")
+, crusties("null", "null")
 {
     linkQuestions();
+    filler.giveStory("Just a filler story");
     /******** when typing in a modded story, add necessary spaces for the modification string when it's inserted ******/
     elf.giveStory("You encounter an elf who's sitting on a tree stump. You approach them cautiously. "
                   "As you get within arms reach, you notice their eyes have popped out of their head. You could keep walking, or...");
     
+    // ---------------------------------------TIER 2------------------------------------------ //
     // elf a choice path "a"
     forest.giveStory("As you walk the forest, trying to forget the sight of that dead, eyeless elf, you notice a strange light ahead. "
                      "It's a strange ray of sunlight, shining through the canopy. On the ground where the sun ray stops, there are two bowls. "
                      "In one bowl, a greenly tinted mushroom - the other bowl, a yellowish nectar-like fluid.");
     // elf b choice path "b"
-    shit.giveStory("The sight of that elf causes your body to involuntarily shit itself - right on the spot.");
+    soil.giveStory("The sight of that elf causes your body to involuntarily soil itself - right on the spot.");
+    // ---------------------------------------TIER 2------------------------------------------ //
     
+    // ---------------------------------------TIER 3------------------------------------------ //
     // forest a choice path "aa"
     mushroom.giveStory("You pick the mushroom up out of the bowl. It's not so large, so you place the whole thing in your mouth at once and begin to chew. "
                        "For some reason, you expected it to have a psychodelic affect. After wasting that time, you decide it's time to make camp.");
@@ -292,15 +290,17 @@ Game::Game()
     nectar.giveStory("You pick up the bowl of nectar, touching the rim of the bowl to your lips, and slowly tip your head back. You pour the sweet fluid "
                      "down your throat and enjoy its somehow-nostalgic taste. Your vision immediately starts to change. The forest in front of you "
                      "parts into two paths. One path is crossed infinitely by rays of light - you see a glimpse of your father walking down the other.");
-    
-    // shit a choice path "ba"
+    // soil a choice path "ba"
     butt.giveStory("After taking care of your hygenic duties, you decide what to do with the poor leaf you chose to sacrifice for the task. You glance "
                    "at the ground, which is very loose and damp. You also see a nearby tree with a lot of moss growing on it.");
-    // shit b choice path "bb"
+    // soil b choice path "bb"
     act.giveStory("Bold move deciding to act like something like that never happened. After walking away, you find a nearby creek, which could offer "
                   "some much needed cleaning. You have also just seen a horific scene and think getting out of here might be the best choice.");
+    // ---------------------------------------TIER 3------------------------------------------ //
     
-    // act b choice path "bbb" and nectar b choice path "abb"
+    // ---------------------------------------TIER 4------------------------------------------ //
+    // nectar b choice path "abb"
+    // act b choice path "bbb"
     fountain.giveStory("After walking for a ways you see a break in the trees up ahead. A few more steps brings you to the clearing. In the clearing, you"
                        " spot something quite dumbfounding. Right in the center of this clearing sits a beautifully hand-carved stone fountain. ^"
                        " You walk quickly to the fountain. You stare deeply at your reflection in the bottom pool. You almost can't look away...");
@@ -308,19 +308,30 @@ Game::Game()
                               , "bbb");
     fountain.addStoryModifier("It looks just like the one your father had made for the front garden of your family home."
                               , "abb");
-    fountain.giveQuestions("Keep staring at your reflection.", "Swipe at the water and ruin your reflection.");
+    // mushroom a choice path "aaa"
+    fire.giveStory("There are probably no more than two to three hours of sunlight left, so starting a fire might be the best plan now. As you gather kindling "
+                   "you think you hear some foot steps and cracking twigs not that far from where you are.");
+    // mushroom b choice path "aab"
+    food.giveStory("You feel hungier after that mushroom, so you eat a snack.");
+    // butt a choice path "baa"
+    bury.giveStory("A story.");
+    // butt b choice path "bab"
+    tree.giveStory("Another story.");
+    // ---------------------------------------TIER 4------------------------------------------ //
 }
 
 void Game::linkQuestions() {
-    elf.makeRoutes(&forest, &shit);
+    elf.makeRoutes(&forest, &soil);
     // the current question should be set to the first question
     currentQuestion = &elf;
     
     forest.makeRoutes(&mushroom, &nectar);
-    shit.makeRoutes(&butt, &act);
+    soil.makeRoutes(&butt, &act);
     
-    act.makeRoutes(&filler, &fountain);
-    nectar.makeRoutes(&filler, &fountain);
+    mushroom.makeRoutes(&fire, &food);
+    butt.makeRoutes(&bury, &tree)
+    act.makeRoutes(&crusties, &fountain);
+    nectar.makeRoutes(&light, &fountain);
 }
 
 void Game::travelTo(char pathChoice) {
