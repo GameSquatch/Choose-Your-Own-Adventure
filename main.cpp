@@ -317,6 +317,8 @@ Game::Game()
     bury.giveStory("A story.");
     // butt b choice path "bab"
     tree.giveStory("Another story.");
+	// act a choice path "bba"
+	crusties.giveStory("Crusty story.");
     // ---------------------------------------TIER 4------------------------------------------ //
 }
 
