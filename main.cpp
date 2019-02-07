@@ -41,7 +41,6 @@ so choose. I might be so inclined to make more
 choices.
 */
 
-#include "stdafx.h"
 #include <iostream>
 #include <string>
 #include <ctime>
@@ -243,13 +242,27 @@ private:
 	Question butt;
 	Question act;
 
-	Question crusties;
+	Question cleanoff;
 	Question fountain;
 	Question light;
 	Question fire;
 	Question food;
 	Question bury;
 	Question tree;
+    
+    Question fishing;
+    Question hunting;
+    Question shrugoff;
+    Question investigate;
+    Question leavePath;
+    Question continueOn;
+    Question keepLooking;
+    Question swipeWater;
+    Question footsteps;
+    Question whosThere;
+    Question dontJudge;
+    Question followInstructions;
+    Question tearNote;
 
 	Question filler;
 
@@ -268,21 +281,22 @@ Game::Game()
 	: pathStr("")
 	, currentQuestion(nullptr)
 	, elf("Keep walking", "Soil yourself")
-	, forest("Eat the mushroom", "Drink the nectar")
+	, forest("Eat the mushroom", "Drink the nectar")// tier 2
 	, soil("Clean yourself", "Act like it didn't happen")
-	, nectar("Walk to the light", "Follow your father")
+	, nectar("Walk to the light", "Follow your father")// tier 3
 	, mushroom("Make a fire", "Find food")
 	, butt("Bury poop leaf", "Stick to tree")
 	, act("Wash off", "Keep walking")
-	, fountain("Keep staring at reflection", "Swipe at the water", true)
+	, fountain("Keep staring at reflection", "Swipe at the water", true)// tier 4
 	, filler("TESTING", "TESTING")
 	, light("Find a way out", "Continue walking")
 	, fire("It was probably an animal", "Investigate the sound")
 	, food("Go fishing", "Go hunting")
-	, bury("Follow the instructions", "Ignore the note")
+	, bury("Follow the instructions", "Tear up the note")
 	, tree("Apologize to the tree", "Shrug your shoulders")
-	, crusties("Go fishing", "Follow the footsteps")
+	, cleanoff("Go fishing", "Follow the footsteps")
 {
+    // linkQuestions is required to set the path of the story
 	linkQuestions();
 	filler.giveStory("Just a filler story");
 	/******** when typing in a modded story, add necessary spaces for the modification string when it's inserted ******/
@@ -339,7 +353,7 @@ Game::Game()
 	tree.giveStory("The tree can't cry for help. The tree can't express its disdain for the action you've just taken upon it. Someone must, because "
 		"that was truly disgusting, so I, the narrator, will. Gross, you dirty homeless person. Shame on you.");
 	// act a choice path "bba"
-	crusties.giveStory("You descend the banks of the creek until you reach the water. A dip of your finger reveals a chilly surprise; this is not going "
+	cleanoff.giveStory("You descend the banks of the creek until you reach the water. A dip of your finger reveals a chilly surprise; this is not going "
 		"to be fun to wash off with. As you clean off you catch movement beneath the water in the corner of your eye. There are some sizeable "
 		"fish in this creek. Slightly above your focus, on the opposite bank of the creek, you see footsteps as well.");
 	// nectar a choice path "aba"
@@ -347,6 +361,58 @@ Game::Game()
 		"walking for what seemed only to be a few seconds. Either your eyes are tricking you or the mysterious fog is morphing into shapes and figures."
 		" Every instinct in your body is teling you to leave the forest path, but your curiosity is persuading you to continue.");
 	// ---------------------------------------TIER 4------------------------------------------ //
+    
+    // ---------------------------------------TIER 5------------------------------------------ //
+    // food a choice "aaba"
+    // cleanoff a choice "bbaa"
+    fishing.giveStory("The glint of the sun off the shiny scales of the fish below the surface is somehow making you very hungry. Without a spear or "
+                      "sharp stick, you prepare your mind for the swift motion you are going to have to perform with your hands. Wading into the middle "
+                      "of the creek carefully, the fish seem unphased by you. You stand rock still, staring and waiting for your moment. Suddenly, a "
+                      "big fish swims right under your hands. This fish was different though; its scales were so colorful...");
+    // food b choice "aabb"
+    hunting.giveStory("You've seen the survival shows on TV. All you'll need for small game is some cord and some sticks and the perfect spot to place "
+                      "the trap. You make the cord out of your shoelaces and start watching the rabbits scurry about in a small clearing near by."
+                      " You observe a popular trail and start setting the trap. As you set the cord, you hear a lot of noise close by; it sounds "
+                      "like a struggle - something big. Walking towards the noise, you find a deer with its antlers stuck in some wires. You could "
+                      " kill it and have the best meal you've had in days, or set it free.");
+    // fountain a choice "abba" and "bbba"
+    keepLooking.giveStory("You keep staring at yourself in the deep blue fountain water. Nothing happens. I don't know what you were expecting.");
+    // fountain b choice "abbb" and "bbbb"
+    swipeWater.giveStory("You swipe at the water and it ripples throughout the pool. Suddenly the top of the fountain starts gurgling, as if it's "
+                         "trying to pump water again. After a few seconds, water starts cascading down the three tiers of the fountain. It takes "
+                         "some time at each pool to refill what has evaporated over time, but eventually it reaches the bottom pool.");
+    // fire a choice "aaaa"
+    shrugoff.giveStory("It's probably just small animals. You continue gathering fuel for you fire and carry it back to camp. As the sun sets and "
+                       "your fire crackles, your mind wanders. You start to feel your eyelids get heavier and heavier with the warmth of the fire "
+                       "soaking deeper into your body.");
+    // fire b choice "aaab"
+    investigate.giveStory("You don't want to find out that you aren't alone in these forests right before a relazxing night by the fire, so you"
+                          " move towards the sounds you heard. You make your way around some thick bushes, and once you've made it around, you "
+                          "look around. Sure enough, some rabbits and birds scatter when you pop your head around. You could have sworn it sounded "
+                          "like something else though...");
+    // bury a choice "baaa"
+    followInstructions.giveStory("Against your better judgement, you decide to follow the instructions on the note; it's like someone or something "
+                                 "else is compelling you to do it. You get up, find a river, and drown yourself.");
+    // bury b choice "baab"
+    tearNote.giveStory("You tear it up, but not without hesitation. Suddenly, a flying object appears over your head and pulls you up into it using "
+                       "some kind of gravity beam technology.");
+    // tree a choice "baba"
+    whosThere.giveStory("You ask me, \"Who's there?\", but I already knew you were going to ask me that. It's me, God. Are you having fun on this adventure "
+                        "yet?");
+    // tree b choice "babb"
+    dontJudge.giveStory("You say, \"Don't judge me! Who are you to look down at me?\". You really don't want to know who I am. The answer would terrify you "
+                        "and your tiny human brain.");
+    // cleanoff b choice "bbab" // a choice is above for the fishing object
+    footsteps.giveStory("You wade across the creek to the footsteps. They are definitely not animal, but there is no indication of footwear - no patterns or "
+                        "shoe shape - just an ellipse-like shape that comes to a dull point at one end. You follow them for a few minutes only to be "
+                        "completely terrified by where it led you. You stand, once again, in front of the dead elf.");
+    // light a choice "abaa"
+    leavePath.giveStory("You hate having your mind play tricks on you so you leave the path. As soon as you step foot off the path, your chest is pierced by "
+                        "an arrow. You slowly bleed out, as your vision goes black...");
+    // light b choice "abab"
+    continueOn.giveStory("You know your mind is stronger than this, so you push on. The hallucinations only get worse though, but your attitude toward them is "
+                         "shifting; you embrace the visions.");
+    // ---------------------------------------TIER 4------------------------------------------ //
 }
 
 void Game::linkQuestions() {
@@ -359,8 +425,16 @@ void Game::linkQuestions() {
 
 	mushroom.makeRoutes(&fire, &food);
 	butt.makeRoutes(&bury, &tree);
-	act.makeRoutes(&crusties, &fountain);
+	act.makeRoutes(&cleanoff, &fountain);
 	nectar.makeRoutes(&light, &fountain);
+    
+    fire.makeRoutes(&shrugoff, &investigate);
+    food.makeRoutes(&fishing, &hunting);
+    bury.makeRoutes(&followInstructions, &tearNote);
+    tree.makeRoutes(&whosThere, &dontJudge);
+    cleanoff.makeRoutes(&fishing, &footsteps);
+    fountain.makeRoutes(&keepLooking, &swipeWater);
+    light.makeRoutes(&leavePath, &continueOn);
 }
 
 void Game::travelTo(char pathChoice) {
@@ -497,6 +571,5 @@ int main(int argc, const char * argv[]) {
 	Game game;
 	game.gameLoop();
 
-	system("PAUSE");
 	return 0;
 }
