@@ -295,6 +295,19 @@ Game::Game()
 	, bury("Follow the instructions", "Tear up the note")
 	, tree("Apologize to the tree", "Shrug your shoulders")
 	, cleanoff("Go fishing", "Follow the footsteps")
+    , fishing("Grab it", "Let it swim away", true)// tier 5
+    , hunting("Kill it", "Set it free")
+    , shrugoff("Stay awake", "Fall asleep")
+    , investigate("Head back to camp", "Look closer")
+    , leavePath("Die", "Die")
+    , continueOn("Focus", "Let your mind drift")
+    , keepLooking("Leave fountain", "Look again")
+    , swipeWater("Touch water", "Leave fountain")
+    , footsteps("Keep walking", "Soil yourself")
+    , whosThere("Yes", "Maybe?")
+    , dontJudge("Tell me", "Fine, go away then")
+    , followInstructions("What are you doing?!", "Die")
+    , tearNote("Resist", "Ride it out")
 {
     // linkQuestions is required to set the path of the story
 	linkQuestions();
@@ -365,10 +378,13 @@ Game::Game()
     // ---------------------------------------TIER 5------------------------------------------ //
     // food a choice "aaba"
     // cleanoff a choice "bbaa"
-    fishing.giveStory("The glint of the sun off the shiny scales of the fish below the surface is somehow making you very hungry. Without a spear or "
+    fishing.giveStory("^The glint of the sun off the shiny scales of the fish below the surface is somehow making you very hungry. Without a spear or "
                       "sharp stick, you prepare your mind for the swift motion you are going to have to perform with your hands. Wading into the middle "
                       "of the creek carefully, the fish seem unphased by you. You stand rock still, staring and waiting for your moment. Suddenly, a "
                       "big fish swims right under your hands. This fish was different though; its scales were so colorful...");
+    fishing.addStoryModifier("You decide that your stomach is more in the mood for some fish, rather than some rabbit. So you make your way to the creek. "
+                             , "aaba");
+    fishing.addStoryModifier("Luckily you washed off downstream from the fish. Otherwise, they might not taste so good. ", "bbaa");
     // food b choice "aabb"
     hunting.giveStory("You've seen the survival shows on TV. All you'll need for small game is some cord and some sticks and the perfect spot to place "
                       "the trap. You make the cord out of your shoelaces and start watching the rabbits scurry about in a small clearing near by."
